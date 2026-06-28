@@ -127,7 +127,7 @@ async function run() {
     }
     });
 
-    // 2. GET SINGLE ARTWORK BY ID
+    // 2. SINGLE ARTWORK BY ID
     app.get("/api/artworks/single/:id", async (req, res) => {
     try {
     const { id } = req.params;
@@ -144,7 +144,7 @@ async function run() {
     }
     });
 
-    // 3. DELETE ARTWORK BY ID
+    //DELETE ARTWORK BY ID
     app.delete("/api/artworks/:id", async (req, res) => {
     try {
     const { id } = req.params;
