@@ -144,7 +144,7 @@ async function run() {
     }
     });
 
-    //DELETE ARTWORK BY ID
+    //DELETE EACH ARTWORK BY ID
     app.delete("/api/artworks/:id", async (req, res) => {
     try {
     const { id } = req.params;
