@@ -101,7 +101,7 @@ async function run() {
     const { search, category, sort } = req.query;
     let query = {};
 
-    // Global Search (Title or Artist Name)
+    // Global Search (Title or Artist Name accordingly)
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
