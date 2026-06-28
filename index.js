@@ -28,6 +28,36 @@ async function run() {
     // await client.connect();
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
+
+    const db = client.db("art_hub");
+    const artworksCollection = db.collection("artworks");
+    const usersCollection = db.collection("users");
+    const purchasesCollection = db.collection("purchases")
+    const subscriptionCollection = db.collection("subscriptions")
+    const commentsCollection = db.collection("comments")
+
+
+    app.get("/api/artworks/:email", async (req, res) => {
+        const {email} = req.params;
+        const result = await artworksCollection.findOne({artistEmail:email})
+        res.send(result)
+    })
+
+    app.post("/api/artworks", async (req, res) => {
+    const {title, image, description, category, price, artistName, artistEmail} = req.body;
+
+    const artwork = {title, image, description, category, price: Number(price),
+    artistName, artistEmail,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    };
+
+    const result = await artworksCollection.insertOne(artwork);
+
+    res.send(result);
+    });
+
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
