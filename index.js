@@ -367,9 +367,94 @@ async function run() {
     });
 
     app.get("/api/admin/transactions", async (req, res) => {
-    const transactions = await purchasesCollection.find().sort({purchasedAt: -1}).toArray();
+    try {
+    const purchases = await purchasesCollection.find().toArray();
+
+    const subscriptions = await subscriptionCollection.find().toArray();
+
+    const purchaseTransactions = purchases.map((purchase) => ({
+      _id: purchase._id,
+      type: "Purchase",
+
+      userEmail: purchase.buyerEmail,
+      artistEmail: purchase.artistEmail,
+
+      amount: purchase.price,
+
+      date: purchase.purchasedAt,
+    }));
+
+    const subscriptionTransactions = subscriptions.map((subscription) => ({
+      _id: subscription._id,
+      type: "Subscription",
+
+      userEmail: subscription.userEmail,
+      artistEmail: "-",
+
+      amount: subscription.price,
+
+      date: subscription.subscribedAt,
+    }));
+
+    const transactions = [
+      ...purchaseTransactions,
+      ...subscriptionTransactions,
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.send(transactions);
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed to fetch transactions",
+    });
+    }
+    });
+
+    // Get All Users
+
+    app.get("/api/admin/users", async (req, res) => {
+    try {
+    const users = await usersCollection.find({}).sort({ createdAt: -1 }).toArray();
+    res.send(users);
+    } catch (err) {
+    res.status(500).send({message: "Failed to fetch users"});
+    }
+    });
+
+    // Update User Role
+
+    app.patch("/api/admin/users/:id", async (req, res) => {
+    try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const result = await usersCollection.updateOne(
+      {
+        _id: new ObjectId(id),
+      },
+      {
+        $set: {
+          role,
+        },
+      }
+    );
+
+    res.send(result);
+    } catch (err) {
+    res.status(500).send({message: "Failed to update role"});
+    }
+    });
+
+    // Delete User
+
+    app.delete("/api/admin/users/:id", async (req, res) => {
+    try {
+    const result = await usersCollection.deleteOne({_id: new ObjectId(req.params.id),
+    });
+
+    res.send(result);
+    } catch (err) {
+    res.status(500).send({message: "Delete failed"});
+    }
     });
 
     // subscriptions collection
@@ -510,8 +595,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
