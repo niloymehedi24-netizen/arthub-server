@@ -280,6 +280,39 @@ async function run() {
     }
     });
 
+    app.post("/api/subscriptions", async (req, res) => {
+    try {
+    const {
+      userEmail,
+      userName,
+      plan,
+      price,
+      maxPurchases,
+    } = req.body;
+
+    await subscriptionCollection.deleteMany({userEmail});
+
+    const subscription = {
+      userEmail,
+      userName,
+      plan,
+      price,
+      maxPurchases,
+      subscribedAt: new Date(),
+    };
+
+    const result =
+      await subscriptionCollection.insertOne(subscription);
+
+    res.send(result);
+
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed to subscribe",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
