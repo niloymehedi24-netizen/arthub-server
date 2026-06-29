@@ -345,6 +345,27 @@ async function run() {
     }
     });
 
+    app.get("/api/comments/:artworkId", async (req, res) => {
+    try {
+    const { artworkId } = req.params;
+
+    const comments = await commentsCollection
+      .find({
+        artworkId,
+      })
+      .sort({
+        createdAt: -1,
+      })
+      .toArray();
+
+    res.send(comments);
+     } catch (err) {
+    res.status(500).send({
+      message: "Failed",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
