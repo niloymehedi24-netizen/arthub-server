@@ -234,6 +234,22 @@ async function run() {
     }
     });
 
+    app.get("/api/users/:email", async (req, res) => {
+     try {
+    const { email } = req.params;
+
+    const user = await usersCollection.findOne({
+      email,
+    });
+
+    res.send(user);
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed to fetch user",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
