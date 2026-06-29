@@ -158,6 +158,25 @@ async function run() {
     }
     });
 
+    // PURCHASE AN ARTWORK
+    app.post("/api/purchases", async (req, res) => {
+        try {
+    const purchase = req.body;
+
+    purchase.purchasedAt = new Date();
+
+    const result = await purchasesCollection.insertOne(purchase);
+
+    res.status(201).json(result);
+    } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Purchase failed",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
