@@ -262,7 +262,7 @@ async function run() {
     const uniqueBuyers = new Set(sales.map((sale) => sale.userEmail)).size;
 
     res.send({totalSales, totalRevenue, uniqueBuyers,});
-    
+
     } catch (err) {
     res.status(500).send({
       message: "Failed",
@@ -402,6 +402,38 @@ async function run() {
     res.status(500).send({
       message: "Failed",
     });
+    }
+    });
+
+    app.post("/api/comments", async (req, res) => {
+    try {
+    const comment = {
+      artworkId: req.body.artworkId,
+      artworkTitle: req.body.artworkTitle,
+
+      userEmail: req.body.userEmail,
+      userName: req.body.userName,
+
+      comment: req.body.comment,
+
+      createdAt: new Date(),
+    };
+
+    const result = await commentsCollection.insertOne(comment);
+
+    res.send(result);
+    } catch (err) {
+    res.status(500).send({ message: "Failed to add comment" });
+    }
+    });
+
+    app.get("/api/comments/:artworkId", async (req, res) => {
+    try {
+    const comments = await commentsCollection.find({artworkId: req.params.artworkId,}).sort({ createdAt: -1 }).toArray();
+
+    res.send(comments);
+    } catch (err) {
+    res.status(500).send({ message: "Failed to fetch comments" });
     }
     });
 
