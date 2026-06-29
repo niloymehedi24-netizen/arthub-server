@@ -37,6 +37,7 @@ async function run() {
     const commentsCollection = db.collection("comments")
 
 
+    // artwork collection
     app.get("/api/artworks/:email", async (req, res) => {
     
     try {
@@ -158,7 +159,7 @@ async function run() {
     }
     });
 
-    // PURCHASE AN ARTWORK
+    // purchase collection
     app.post("/api/purchases", async (req, res) => {
     try {
     const purchase = req.body;
@@ -234,6 +235,21 @@ async function run() {
     }
     });
 
+    app.get("/api/sales/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const sales = await purchasesCollection.find({artistEmail: email}).sort({purchasedAt: -1}).toArray();
+
+    res.send(sales);
+     } catch (err) {
+    res.status(500).send({
+      message: "Failed to fetch sales",
+    });
+    }
+    });
+    
+    // Users collection
     app.get("/api/users/:email", async (req, res) => {
      try {
     const { email } = req.params;
@@ -280,6 +296,7 @@ async function run() {
     }
     });
 
+    // subscriptions collection
     app.post("/api/subscriptions", async (req, res) => {
     try {
     const {
@@ -328,6 +345,7 @@ async function run() {
     }
     });
 
+    // comments collection
     app.post("/api/comments", async (req, res) => {
     try {
     const comment = {
