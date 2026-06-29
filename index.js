@@ -183,7 +183,7 @@ async function run() {
     try {
     const { email } = req.params;
 
-    const result = await purchasesCollection.find({buyerEmail: email,}).sort({purchasedAt: -1,}).toArray();
+    const result = await purchasesCollection.find({buyerEmail: email}).sort({purchasedAt: -1,}).toArray();
 
     res.json(result);
 
@@ -238,14 +238,44 @@ async function run() {
      try {
     const { email } = req.params;
 
-    const user = await usersCollection.findOne({
-      email,
-    });
+    const user = await usersCollection.findOne({email});
 
     res.send(user);
     } catch (err) {
     res.status(500).send({
       message: "Failed to fetch user",
+    });
+    }
+    });
+
+    app.patch("/api/users/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const {
+      name,
+      image,
+      phone,
+      address,
+    } = req.body;
+
+    const result =
+      await usersCollection.updateOne({ email },
+        {
+          $set: {
+            name,
+            image,
+            phone,
+            address,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+    res.send(result);
+    } catch (err) {
+    res.status(500).send({
+      message: "Update failed",
     });
     }
     });
