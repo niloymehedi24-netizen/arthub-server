@@ -196,7 +196,43 @@ async function run() {
     }
     });
 
-    
+    // subscription
+    app.get("/api/purchases/count/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const count = await purchasesCollection.countDocuments({
+      buyerEmail: email,
+    });
+
+    res.json({
+      count,
+    });
+    } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed",
+    });
+    }
+    });
+
+    app.get("/api/purchases/gallery/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const purchases = await purchasesCollection
+      .find({ buyerEmail: email })
+      .sort({ purchasedAt: -1 })
+      .toArray();
+
+    res.send(purchases);
+    } catch (error) {
+    res.status(500).send({
+      message: "Failed to fetch purchased artworks",
+    });
+    }
+    });
 
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
