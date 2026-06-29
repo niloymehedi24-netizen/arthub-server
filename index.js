@@ -313,6 +313,21 @@ async function run() {
     }
     });
 
+    app.get("/api/subscriptions/:email", async (req, res) => {
+    try {
+    const result =
+      await subscriptionCollection.findOne({
+        userEmail: req.params.email,
+      });
+
+    res.send(result);
+    } catch {
+    res.status(500).send({
+      message: "Failed",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
