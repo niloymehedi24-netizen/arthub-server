@@ -248,6 +248,27 @@ async function run() {
     });
     }
     });
+
+    app.get("/api/sales/stats/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const sales = await purchasesCollection.find({artistEmail: email}).toArray();
+
+    const totalSales = sales.length;
+
+    const totalRevenue = sales.reduce((sum, item) => sum + item.price,0);
+
+    const uniqueBuyers = new Set(sales.map((sale) => sale.userEmail)).size;
+
+    res.send({totalSales, totalRevenue, uniqueBuyers,});
+    
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed",
+    });
+    }
+    });
     
     // Users collection
     app.get("/api/users/:email", async (req, res) => {
