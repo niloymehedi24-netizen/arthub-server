@@ -328,6 +328,23 @@ async function run() {
     }
     });
 
+    app.post("/api/comments", async (req, res) => {
+    try {
+    const comment = {
+      ...req.body,
+      createdAt: new Date(),
+    };
+
+    const result = await commentsCollection.insertOne(comment);
+
+    res.send(result);
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed to add comment",
+    });
+    }
+    });
+
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
