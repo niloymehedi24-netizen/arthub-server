@@ -160,7 +160,7 @@ async function run() {
 
     // PURCHASE AN ARTWORK
     app.post("/api/purchases", async (req, res) => {
-        try {
+    try {
     const purchase = req.body;
 
     purchase.purchasedAt = new Date();
@@ -176,6 +176,27 @@ async function run() {
     });
     }
     });
+
+    // PURCHASE HISTORY OF A USER
+
+    app.get("/api/purchases/:email", async (req, res) => {
+    try {
+    const { email } = req.params;
+
+    const result = await purchasesCollection.find({buyerEmail: email,}).sort({purchasedAt: -1,}).toArray();
+
+    res.json(result);
+
+    } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch purchases",
+    });
+    }
+    });
+
+    
 
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
