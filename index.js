@@ -317,6 +317,61 @@ async function run() {
     }
     });
 
+    // admin requirement api
+    app.get("/api/admin/analytics", async (req, res) => {
+    const totalUsers = await usersCollection.countDocuments();
+
+    const totalArtists = await usersCollection.countDocuments({role: "artist",
+    });
+
+    const purchases = await purchasesCollection.find().toArray();
+
+    const totalSold = purchases.length;
+
+    const totalRevenue = purchases.reduce((sum, purchase) => sum + purchase.price,0);
+
+    const artworks = await artworksCollection.find().toArray();
+
+    const categoryMap = {};
+
+    artworks.forEach((artwork) => {
+    categoryMap[artwork.category] =(categoryMap[artwork.category] || 0) + 1;});
+
+    const categoryData = Object.entries(categoryMap).map(
+    ([category, value]) => ({
+      category,
+      value,
+    })
+    );
+
+    res.send({
+    totalUsers,
+    totalArtists,
+    totalSold,
+    totalRevenue,
+    categoryData,
+    });
+    });
+
+    app.get("/api/admin/artworks", async (req, res) => {
+    const artworks = await artworksCollection.find().sort({ createdAt: -1 }).toArray();
+
+    res.send(artworks);
+    });
+
+    app.delete("/api/admin/artworks/:id", async (req, res) => {
+    const result = await artworksCollection.deleteOne({_id: new ObjectId(req.params.id),
+    });
+
+    res.send(result);
+    });
+
+    app.get("/api/admin/transactions", async (req, res) => {
+    const transactions = await purchasesCollection.find().sort({purchasedAt: -1}).toArray();
+
+    res.send(transactions);
+    });
+
     // subscriptions collection
     app.post("/api/subscriptions", async (req, res) => {
     try {
