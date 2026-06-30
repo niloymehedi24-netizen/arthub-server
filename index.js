@@ -1,9 +1,13 @@
-const express = require('express');
-const dotenv = require('dotenv');
+const express = require("express");
+const dotenv = require("dotenv");
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+dotenv.config();
 
-dotenv.config()
+const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 8000;
@@ -36,6 +40,32 @@ async function run() {
     const subscriptionCollection = db.collection("subscriptions")
     const commentsCollection = db.collection("comments")
 
+
+    // Create Stripe Payment Intent
+
+    app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).send({message: "Invalid amount"});
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency: "usd",
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    res.send({clientSecret: paymentIntent.client_secret});
+    } catch (error) {
+    console.log(error);
+
+    res.status(500).send({message: "Failed to create payment intent"});
+    }
+    });
 
     // artwork collection
     app.get("/api/artworks/:email", async (req, res) => {
