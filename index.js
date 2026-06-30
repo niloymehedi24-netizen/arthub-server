@@ -12,7 +12,12 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 8000;
 
-app.use(cors())
+app.use(
+  cors({
+    origin: ["https://arthub-blue.vercel.app", "http://localhost:3000"],
+    credentials: true,
+  })
+);
 app.use(express.json())
 
 const uri = process.env.MONGODB_URI;
