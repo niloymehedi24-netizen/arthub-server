@@ -528,7 +528,9 @@ async function run() {
       maxPurchases,
     } = req.body;
 
-    await subscriptionCollection.deleteMany({userEmail});
+    await subscriptionCollection.deleteMany({
+      userEmail,
+    });
 
     const subscription = {
       userEmail,
@@ -539,14 +541,21 @@ async function run() {
       subscribedAt: new Date(),
     };
 
-    const result =
-      await subscriptionCollection.insertOne(subscription);
+    const result = await subscriptionCollection.insertOne(subscription);
+
+    await usersCollection.updateOne(
+      { email: userEmail },
+      {
+        $set: {
+          subscriptionTier: plan.toLowerCase(),
+        },
+      }
+    );
 
     res.send(result);
-
-    } catch (err) {
+     } catch (err) {
     res.status(500).send({
-      message: "Failed to subscribe",
+      message: "Subscription failed",
     });
     }
     });
