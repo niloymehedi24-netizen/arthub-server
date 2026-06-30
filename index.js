@@ -196,6 +196,17 @@ async function run() {
 
     purchase.purchasedAt = new Date();
 
+    const existing = await purchasesCollection.findOne({
+    artworkId: purchase.artworkId,
+    buyerEmail: purchase.buyerEmail,
+    });
+
+    if (existing) {
+    return res.status(400).send({
+    message: "Artwork already purchased",
+    });
+    }
+
     const result = await purchasesCollection.insertOne(purchase);
 
     res.status(201).json(result);
@@ -261,6 +272,25 @@ async function run() {
     } catch (error) {
     res.status(500).send({
       message: "Failed to fetch purchased artworks",
+    });
+    }
+    });
+
+    app.get("/api/purchases/check/:artworkId/:email", async (req, res) => {
+    try {
+    const { artworkId, email } = req.params;
+
+    const purchase = await purchasesCollection.findOne({
+      artworkId,
+      buyerEmail: email,
+    });
+
+    res.send({
+      purchased: !!purchase,
+    });
+    } catch (err) {
+    res.status(500).send({
+      message: "Failed",
     });
     }
     });
@@ -540,44 +570,6 @@ async function run() {
     app.post("/api/comments", async (req, res) => {
     try {
     const comment = {
-      ...req.body,
-      createdAt: new Date(),
-    };
-
-    const result = await commentsCollection.insertOne(comment);
-
-    res.send(result);
-    } catch (err) {
-    res.status(500).send({
-      message: "Failed to add comment",
-    });
-    }
-    });
-
-    app.get("/api/comments/:artworkId", async (req, res) => {
-    try {
-    const { artworkId } = req.params;
-
-    const comments = await commentsCollection
-      .find({
-        artworkId,
-      })
-      .sort({
-        createdAt: -1,
-      })
-      .toArray();
-
-    res.send(comments);
-     } catch (err) {
-    res.status(500).send({
-      message: "Failed",
-    });
-    }
-    });
-
-    app.post("/api/comments", async (req, res) => {
-    try {
-    const comment = {
       artworkId: req.body.artworkId,
       artworkTitle: req.body.artworkTitle,
 
@@ -596,6 +588,7 @@ async function run() {
     res.status(500).send({ message: "Failed to add comment" });
     }
     });
+    
 
     app.get("/api/comments/:artworkId", async (req, res) => {
     try {
